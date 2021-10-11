@@ -1,0 +1,37 @@
+FROM php:7.4-fpm
+
+ARG USER
+ARG UID
+
+RUN apt-get -y update \
+    && apt-get -y install \
+        libmcrypt-dev \
+        libxslt-dev \
+        zlib1g-dev \
+        libpng-dev \
+        libjpeg-dev \
+        libfreetype6-dev \
+        libjpeg62-turbo-dev \
+        libzip-dev \
+        bash-completion \
+        git \
+    && apt-get autoremove -y \
+    && apt-get autoclean -y \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN docker-php-ext-configure gd --with-freetype=/usr/include/ --with-jpeg=/usr/include/ \
+    && docker-php-ext-install -j$(nproc) iconv pdo_mysql xsl intl zip bcmath gd soap gettext opcache exif sockets
+
+RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" \
+    && php -r "if (hash_file('sha384', 'composer-setup.php') === '906a84df04cea2aa72f40b5f787e49f22d4c2f19492ac310e8cba5b96ac8b64115ac402c8cd292b8a03482574915d1a8') \
+       { echo 'Installer verified'; } else { echo 'Installer corrupt'; unlink('composer-setup.php'); } echo PHP_EOL;" \
+    && php composer-setup.php \
+    && php -r "unlink('composer-setup.php');" \
+    && mv composer.phar /usr/local/bin/composer
+
+# Create non-root user
+RUN useradd -m -U ${USER} -u ${UID} -p1 -s /bin/bash -G root -o \
+    ## Change www-data user to ${USER}
+    && sed -i -e "s/www-data/${USER}/" /usr/local/etc/php-fpm.d/www.conf
+
+USER ${USER}

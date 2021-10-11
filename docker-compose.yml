@@ -1,0 +1,39 @@
+version: '2'
+
+services:
+
+  db:
+    image: mariadb:latest
+    restart: always
+    volumes:
+      - ./db/data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: 1
+
+  phpmyadmin:
+    image: phpmyadmin
+    restart: always
+    ports:
+      - 8080:80
+    environment:
+      - PMA_ARBITRARY=1
+
+  httpd:
+    build: ./httpd
+    volumes:
+      - ./public_html:/var/www/html
+    ports:
+      - 80:80
+      - 443:443
+
+  php:
+    build:
+      context: ./php74
+      args:
+        USER: #leave it empty to use your current user
+        UID: ${UID:-501}
+    volumes:
+      - ./public_html:/var/www/html
+
+  elasticsearch:
+    image: elasticsearch:7.14.1
