@@ -3,28 +3,24 @@ version: '2'
 services:
 
   db:
-    image: mariadb:latest
-    restart: always
+    image: mariadb:10.4
+    restart: unless-stopped
     volumes:
-      - ./db/data:/var/lib/mysql
-    environment:
-      MYSQL_ROOT_PASSWORD: 1
-
-  phpmyadmin:
-    image: phpmyadmin
-    restart: always
+      - ./db/10.4/data:/var/lib/mysql
     ports:
-      - 8080:80
+      - ${PORT_DB:-3306}:3306
     environment:
-      - PMA_ARBITRARY=1
+      MARIADB_ROOT_PASSWORD: 1
+    container_name: m2_db
 
   httpd:
     build: ./httpd
     volumes:
       - ./public_html:/var/www/html
     ports:
-      - 80:80
+      - ${PORT:-80}:80
       - 443:443
+    container_name: m2_httpd
 
   php:
     build:
@@ -34,6 +30,7 @@ services:
         UID: ${UID:-501}
     volumes:
       - ./public_html:/var/www/html
+    container_name: m2_php
 
   elasticsearch:
     image: elasticsearch:7.14.1
