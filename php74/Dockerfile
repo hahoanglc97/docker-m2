@@ -29,6 +29,16 @@ RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" \
     && php -r "unlink('composer-setup.php');" \
     && mv composer.phar /usr/local/bin/composer
 
+# install xdebug
+ARG XDEBUG_VER=stable
+
+RUN pecl install xdebug-${XDEBUG_VER} && docker-php-ext-enable xdebug
+COPY ./config/xdebug-config-${XDEBUG_VER}.ini /usr/local/etc/php/conf.d/xdebug-config.ini
+
+# Set memory_limit
+RUN echo "php_admin_value[memory_limit] = 512M" >> /usr/local/etc/php-fpm.d/www.conf \
+&& echo "memory_limit = 512M" >> /usr/local/etc/php/conf.d/memory_limit.ini
+
 # Create non-root user
 RUN useradd -m -U ${USER} -u ${UID} -p1 -s /bin/bash -G root -o \
     ## Change www-data user to ${USER}

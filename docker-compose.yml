@@ -1,12 +1,10 @@
-version: '2'
-
 services:
 
   db:
     image: mariadb:10.4
     restart: unless-stopped
     volumes:
-      - ./db/10.4/data:/var/lib/mysql
+      - ./db/data/:/var/lib/mysql
     ports:
       - ${PORT_DB:-3306}:3306
     environment:
@@ -16,7 +14,8 @@ services:
   httpd:
     build: ./httpd
     volumes:
-      - ./public_html:/var/www/html
+      - ./httpd/conf:/usr/local/apache2/conf/docker:ro
+      - ./public_html:/var/www/html/:ro
     ports:
       - ${PORT:-80}:80
       - 443:443
@@ -28,9 +27,14 @@ services:
       args:
         USER: #leave it empty to use your current user
         UID: ${UID:-501}
+    environment:
+      XDEBUG_MODE: ${XDEBUG_MODE:-off}
     volumes:
       - ./public_html:/var/www/html
-    container_name: m2_php
+    container_name: m2_php74
 
   elasticsearch:
     image: elasticsearch:7.14.1
+    environment:
+      - discovery.type=single-node
+    container_name: m2_elastic
