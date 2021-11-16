@@ -11,7 +11,7 @@ services:
       MARIADB_ROOT_PASSWORD: 1
     container_name: m2_db
     networks:
-      docker-lamp:
+      php-db:
         ipv4_address: 10.10.0.100
 
   httpd:
@@ -23,6 +23,8 @@ services:
       - ${PORT:-80}:80
       - 443:443
     container_name: m2_httpd
+    networks:
+      php-httpd:
 
   php:
     build:
@@ -35,15 +37,32 @@ services:
     volumes:
       - ./public_html:/var/www/html
     container_name: m2_php74
+    networks:
+      php-db:
+      php-httpd:
+      php-es:
 
   elasticsearch:
     image: elasticsearch:7.14.1
     environment:
       - discovery.type=single-node
     container_name: m2_elastic
+    networks:
+      php-es:
+
 networks:
-  docker-lamp:
+  php-db:
     driver: bridge
     ipam:
       config:
         - subnet: 10.10.0.0/24
+  php-httpd:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.20.0.0/24
+  php-es:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.30.0.0/24
