@@ -34,9 +34,42 @@ services:
         UID: ${UID:-501}
     environment:
       XDEBUG_MODE: ${XDEBUG_MODE:-off}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     volumes:
       - ./public_html:/var/www/html
     container_name: m2_php74
+    networks:
+      php-db:
+      php-httpd:
+      php-es:
+
+  php56:
+    build:
+      context: ./php56
+      args:
+        USER: #leave it empty to use your current user
+        UID: ${UID:-501}
+    volumes:
+      - ./public_html:/var/www/html
+    container_name: m2_php56
+    networks:
+      php-db:
+      php-httpd:
+
+  php73:
+    build:
+      context: ./php73
+      args:
+        USER: #leave it empty to use your current user
+        UID: ${UID:-501}
+    environment:
+      XDEBUG_MODE: ${XDEBUG_MODE:-debug}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - ./public_html:/var/www/html
+    container_name: m2_php73
     networks:
       php-db:
       php-httpd:
