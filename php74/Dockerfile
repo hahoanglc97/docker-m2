@@ -43,6 +43,10 @@ RUN echo "php_admin_value[memory_limit] = -1" >> /usr/local/etc/php-fpm.d/www.co
 RUN echo "request_terminate_timeout = 0" >> /usr/local/etc/php-fpm.d/www.conf \
 && echo "max_execution_time = 0" >> /usr/local/etc/php/conf.d/max_execution_time.ini
 
+# Set execution timeout
+RUN echo "request_terminate_timeout = 0" >> /usr/local/etc/php-fpm.d/www.conf \
+&& echo "max_execution_time = 0" >> /usr/local/etc/php/conf.d/max_execution_time.ini
+
 # Create non-root user
 RUN useradd -m -U ${USER} -u ${UID} -p1 -s /bin/bash -G root -o \
     ## Change www-data user to ${USER}
