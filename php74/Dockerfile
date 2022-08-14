@@ -3,7 +3,7 @@ FROM php:7.4-fpm-alpine
 ARG USER
 ARG UID
 
-RUN apt-get -y update \
+RUN apt -y update \
     && apt-get -y install \
         libmcrypt-dev \
         libxslt-dev \
@@ -15,8 +15,8 @@ RUN apt-get -y update \
         libzip-dev \
         bash-completion \
         git \
-    && apt-get autoremove -y \
-    && apt-get autoclean -y \
+    && apt autoremove -y \
+    && apt autoclean -y \
     && rm -rf /var/lib/apt/lists/*
 
 RUN docker-php-ext-configure gd --with-freetype=/usr/include/ --with-jpeg=/usr/include/ \
