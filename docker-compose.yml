@@ -9,7 +9,7 @@ services:
       - ${PORT_DB:-3306}:3306
     environment:
       MARIADB_ROOT_PASSWORD: 1
-    container_name: m2_db
+    container_name: db
     networks:
       php-db:
         ipv4_address: 10.10.0.100
@@ -22,7 +22,7 @@ services:
     ports:
       - ${PORT:-80}:80
       - 443:443
-    container_name: m2_httpd
+    container_name: httpd
     networks:
       php-httpd:
 
@@ -32,13 +32,11 @@ services:
       args:
         USER: #leave it empty to use your current user
         UID: ${UID:-1000}
-    environment:
-      XDEBUG_MODE: ${XDEBUG_MODE:-debug}
     extra_hosts:
       - "host.docker.internal:host-gateway"
     volumes:
       - ./public_html:/var/www/html
-    container_name: m2_php74
+    container_name: php74
     networks:
       php-db:
       php-httpd:
@@ -93,34 +91,34 @@ services:
   #     php-httpd:
   #     php-es:
   
-  elasticsearch:
-    image: elasticsearch:7.9.0
-    #build:
-    #    dockerfile: $PWD/elasticsearch
-    #    context: $PWD
-    container_name: m2_elastic
-    environment:
-      - discovery.type=single-node
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-    volumes:
-      - data2:/dockerData/elasticsearchM2/data
-    ports:
-      - 9200:9200
-    networks:
-      php-es:
-
-  # ddclient:
-  #   image: lscr.io/linuxserver/ddclient
+  # elasticsearch:
+  #   image: elasticsearch:7.9.0
+  #   #build:
+  #   #    dockerfile: $PWD/elasticsearch
+  #   #    context: $PWD
+  #   container_name: m2_elastic
   #   environment:
-  #     - PUID=1000
-  #     - PGID=1000
-  #     - TZ=Asia/Ho_Chi_Minh
+  #     - discovery.type=single-node
+  #   ulimits:
+  #     memlock:
+  #       soft: -1
+  #       hard: -1
   #   volumes:
-  #     - ./config:/config
-  #   restart: unless-stopped
+  #     - data2:/dockerData/elasticsearchM2/data
+  #   ports:
+  #     - 9200:9200
+  #   networks:
+  #     php-es:
+
+  ddclient:
+    image: lscr.io/linuxserver/ddclient
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Asia/Ho_Chi_Minh
+    volumes:
+      - ./config:/config
+    restart: unless-stopped
 
 
   # kb:
@@ -145,11 +143,11 @@ networks:
     ipam:
       config:
         - subnet: 10.20.0.0/24
-  php-es:
-    driver: bridge
-    ipam:
-      config:
-        - subnet: 10.30.0.0/24
+  # php-es:
+  #   driver: bridge
+  #   ipam:
+  #     config:
+  #       - subnet: 10.30.0.0/24
 
 volumes:
   data2:

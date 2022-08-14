@@ -22,38 +22,6 @@ RUN apt-get -y update \
 RUN docker-php-ext-configure gd --with-freetype=/usr/include/ --with-jpeg=/usr/include/ \
     && docker-php-ext-install -j$(nproc) iconv pdo_mysql xsl intl zip bcmath gd soap gettext opcache exif sockets
 
-#Install nodejs
-RUN apt-get update && apt-get install -y \
-        curl 
-
-RUN curl -sL https://deb.nodesource.com/setup_10.x | bash - \ 
-  && apt-get install -y nodejs
-RUN apt-get install -y npm
-RUN npm install -g grunt-cli
-
-RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" \
-    && php composer-setup.php \
-    && php -r "unlink('composer-setup.php');" \
-    && mv composer.phar /usr/local/bin/composer
-
-# install xdebug
-ARG XDEBUG_VER=stable
-
-RUN pecl install xdebug-${XDEBUG_VER} && docker-php-ext-enable xdebug
-COPY ./config/xdebug-config-${XDEBUG_VER}.ini /usr/local/etc/php/conf.d/xdebug-config.ini
-
-# Set memory_limit
-RUN echo "php_admin_value[memory_limit] = -1" >> /usr/local/etc/php-fpm.d/www.conf \
-&& echo "memory_limit = -1" >> /usr/local/etc/php/conf.d/memory_limit.ini
-
-# Set execution timeout
-RUN echo "request_terminate_timeout = 0" >> /usr/local/etc/php-fpm.d/www.conf \
-&& echo "max_execution_time = 0" >> /usr/local/etc/php/conf.d/max_execution_time.ini
-
-# Set execution timeout
-RUN echo "request_terminate_timeout = 0" >> /usr/local/etc/php-fpm.d/www.conf \
-&& echo "max_execution_time = 0" >> /usr/local/etc/php/conf.d/max_execution_time.ini
-
 # Create non-root user
 RUN useradd -m -U ${USER} -u ${UID} -p1 -s /bin/bash -G root -o \
     ## Change www-data user to ${USER}
@@ -65,8 +33,5 @@ RUN mkdir -p /usr/local/bin \
 
 COPY ./bin/* /usr/local/bin/
 RUN chmod +x /usr/local/bin/toggle-php-mod
-RUN composer self-update 1.10.5
-RUN apt-get install -y iputils-ping
-
 
 USER ${USER}
