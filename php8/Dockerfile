@@ -1,4 +1,4 @@
-FROM php:7.4-fpm
+FROM php:8.1-fpm
 
 ARG USER
 ARG UID
@@ -21,15 +21,6 @@ RUN apt-get -y update \
 
 RUN docker-php-ext-configure gd --with-freetype=/usr/include/ --with-jpeg=/usr/include/ \
     && docker-php-ext-install -j$(nproc) iconv pdo_mysql xsl intl zip bcmath gd soap gettext opcache exif sockets
-
-#Install nodejs
-RUN apt-get update && apt-get install -y \
-        curl 
-
-RUN curl -sL https://deb.nodesource.com/setup_10.x | bash - \ 
-  && apt-get install -y nodejs
-RUN apt-get install -y npm
-RUN npm install -g grunt-cli
 
 RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" \
     && php composer-setup.php \
@@ -65,8 +56,6 @@ RUN mkdir -p /usr/local/bin \
 
 COPY ./bin/* /usr/local/bin/
 RUN chmod +x /usr/local/bin/toggle-php-mod
-RUN composer self-update 1.10.5
-RUN apt-get install -y iputils-ping
-
+RUN composer self-update --1
 
 USER ${USER}

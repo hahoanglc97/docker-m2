@@ -31,9 +31,9 @@ services:
       context: ./php74
       args:
         USER: #leave it empty to use your current user
-        UID: ${UID:-501}
+        UID: ${UID:-1000}
     environment:
-      XDEBUG_MODE: ${XDEBUG_MODE:-off}
+      XDEBUG_MODE: ${XDEBUG_MODE:-debug}
     extra_hosts:
       - "host.docker.internal:host-gateway"
     volumes:
@@ -44,44 +44,95 @@ services:
       php-httpd:
       php-es:
 
-  php56:
-    build:
-      context: ./php56
-      args:
-        USER: #leave it empty to use your current user
-        UID: ${UID:-501}
-    volumes:
-      - ./public_html:/var/www/html
-    container_name: m2_php56
-    networks:
-      php-db:
-      php-httpd:
+  # php56:
+  #   build:
+  #     context: ./php56
+  #     args:
+  #       USER: #leave it empty to use your current user
+  #       UID: ${UID:-1000}
+  #   volumes:
+  #     - ./public_html:/var/www/html
+  #   container_name: m2_php56
+  #   networks:
+  #     php-db:
+  #     php-httpd:
 
-  php73:
-    build:
-      context: ./php73
-      args:
-        USER: #leave it empty to use your current user
-        UID: ${UID:-501}
-    environment:
-      XDEBUG_MODE: ${XDEBUG_MODE:-debug}
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-    volumes:
-      - ./public_html:/var/www/html
-    container_name: m2_php73
-    networks:
-      php-db:
-      php-httpd:
-      php-es:
+  # php73:
+  #   build:
+  #     context: ./php73
+  #     args:
+  #       USER: #leave it empty to use your current user
+  #       UID: ${UID:-1000}
+  #   environment:
+  #     XDEBUG_MODE: ${XDEBUG_MODE:-debug}
+  #   extra_hosts:
+  #     - "host.docker.internal:host-gateway"
+  #   volumes:
+  #     - ./public_html:/var/www/html
+  #   container_name: m2_php73
+  #   networks:
+  #     php-db:
+  #     php-httpd:
+  #     php-es:
 
+  # php8:
+  #   build:
+  #     context: ./php8
+  #     args:
+  #       USER: #leave it empty to use your current user
+  #       UID: ${UID:-1000}
+  #   environment:
+  #     XDEBUG_MODE: ${XDEBUG_MODE:-off}
+  #   extra_hosts:
+  #     - "host.docker.internal:host-gateway"
+  #   volumes:
+  #     - ./public_html:/var/www/html
+  #   container_name: m2_php8
+  #   networks:
+  #     php-db:
+  #     php-httpd:
+  #     php-es:
+  
   elasticsearch:
-    image: elasticsearch:7.14.1
+    image: elasticsearch:7.9.0
+    #build:
+    #    dockerfile: $PWD/elasticsearch
+    #    context: $PWD
+    container_name: m2_elastic
     environment:
       - discovery.type=single-node
-    container_name: m2_elastic
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - data2:/dockerData/elasticsearchM2/data
+    ports:
+      - 9200:9200
     networks:
       php-es:
+
+  # ddclient:
+  #   image: lscr.io/linuxserver/ddclient
+  #   environment:
+  #     - PUID=1000
+  #     - PGID=1000
+  #     - TZ=Asia/Ho_Chi_Minh
+  #   volumes:
+  #     - ./config:/config
+  #   restart: unless-stopped
+
+
+  # kb:
+  #   image: kibana:7.9.1
+  #   container_name: m2_kbn
+  #   environment:
+  #     SERVER_NAME: kibana
+  #     ELASTICSEARCH_HOSTS: http://m2_elastic:9200
+  #   ports:
+  #     - 5601:5601
+  #   networks:
+  #     php-es:
 
 networks:
   php-db:
@@ -99,3 +150,6 @@ networks:
     ipam:
       config:
         - subnet: 10.30.0.0/24
+
+volumes:
+  data2:
