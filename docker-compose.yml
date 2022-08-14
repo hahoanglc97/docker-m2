@@ -40,7 +40,6 @@ services:
     networks:
       php-db:
       php-httpd:
-      php-es:
 
   # php56:
   #   build:
