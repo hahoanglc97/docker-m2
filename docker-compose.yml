@@ -19,6 +19,7 @@ services:
     volumes:
       - ./httpd/conf:/usr/local/apache2/conf/docker:ro
       - ./public_html:/var/www/html/:ro
+      - ./letsencrypt:/etc/letsencrypt
     ports:
       - ${PORT:-80}:80
       - 443:443
@@ -69,19 +70,6 @@ services:
       - ./config:/config
     restart: unless-stopped
 
-  caddy:
-    image: caddy:alpine
-    restart: unless-stopped
-    ports:
-      - "80:80"
-      - "443:443"
-      - "443:443/udp"
-    volumes:
-      - ./caddy/Caddyfile:/etc/caddy/Caddyfile
-      - ./caddy/site:/srv
-      - ./caddy/caddy_data:/data
-      - ./caddy/caddy_config:/config
-
 networks:
   php-db:
     driver: bridge
@@ -101,6 +89,3 @@ networks:
 
 volumes:
   data2:
-  caddy_data:
-    external: true
-  caddy_config:
