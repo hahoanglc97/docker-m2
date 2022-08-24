@@ -19,7 +19,7 @@ services:
     volumes:
       - ./httpd/conf:/usr/local/apache2/conf/docker:ro
       - ./public_html:/var/www/html/:ro
-      - ./letsencrypt:/etc/letsencrypt
+      - /etc/letsencrypt:/etc/letsencrypt
     ports:
       - ${PORT:-80}:80
       - 443:443
